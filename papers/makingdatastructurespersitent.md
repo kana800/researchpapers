@@ -2,6 +2,8 @@
 
 > Data structure is peristent if it supports access to multiple versions; only partially persistent if it all the versions can be accessed but only the newest version can be modified, and fully persitent if every version can be accessed and modified.
 
+> Ordinary data structures are *ephemeral* in the sesne that making a change to the structure would destroys the old version, leaving only the new one.
+
 Author defines a *linked data structure* to be a finite collection of *nodes* and each of these *nodes* contain "*data*" field and a pointer field. 
 
 > If a *node* `x` contains a pointer to a *node* `y`, we call `y` a *sucessor* of `x` and `x` a *predecessor* of `y`.
@@ -12,6 +14,41 @@ Author defines a *linked data structure* to be a finite collection of *nodes* an
 
 ### Partial Persistence
 
+> In Overmars research, he studied three simple techniques to obtain partial persistence.
+
+> 1. Explicitly store every version by copying the entire *ephemeral* structure after each update. This cost ![](https://latex.codecogs.com/png.image?\inline&space;\dpi{110}\Omega(n)) time and space per update
+> 2. Store the entire update sequence, rebuilding the current version from scratch each time an *access operation* is performed. Storing an update takes `O(m)` space but accessin`g the version `i` takes ![](https://latex.codecogs.com/png.image?\inline&space;\dpi{110}\Omega(i))  
+> A hybrid method to store entire update sequence every `k`th version. *suitable value for `k` should be chosen*. The accessing version `i` requires rebuilding it from version `k[i/k]`. 
+> 3. Dynamization technique of `Bentley and Saxe`.
+
+Author's first idea is to record all updates to node fields in the node themselves without changing the older values of the fields; This would increase the `size` of the node. 
+> When an *empheral* update step creates a new node, we create a corresponding `fat node`. When an *empheral* update step changes a field value in a node, we add the new value to the corresponding `fat node`, along with the name of the field whose value has changed and a *version stamp* that is number of update operations being performed.
+
+> When an *emphemeral* access step applied to version `i` follow the pointer in field `f` of a node; we follow the pointer in the corresponding fat node whose field name is `f`; if there are several such pointers, we select one with maximum version stamp **no greater than** `i`. 
+
+Author suggest to use an auxiliary data structure to store the access pointer of the various version. I think it would be interesting use *linked* `fatnode` instead of using an *helper*.
+for an *array* updating any version takes `O(1)` time. My problem is that if we are using an array to store the `fatnode` it is going to limit the *amount of* `fatnode` we can use.
+
+```c
+// maybe something like this?
+typedef struct fatnode_{
+    int versionstamp; // current update version
+    float nodeval; // latest value of the node
+    fatnode* prevnode; // pointer to the previous node value
+} fatnode;
+
+typedef struct node_ {
+    float nodeval; // stores the newest node value
+    fatnode* m_fatnode;// fatnode of the node
+    node* nextnode;
+} node;
+```
+
+> The method has two related drawbacks; `fatnode` must be represented by linked collection of fixed-size nodes. This poses no fundamental difficulty but complicates the implementation. Second, choosing which pointer in a `fatnode` to follow when simulating an access step takes more than constant time.
+
+Author suggest the idea of using a binary search with the `fatnodes` being ordered by the version stamp and each access step would be around `O(log m)` time.
+
+Author's second idea is **node copying**. Instead of holding all the `fatnodes` we will only allow a fixed number of `fatnodes` to be stored in it.
 
 ### References
 
