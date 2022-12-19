@@ -48,7 +48,53 @@ typedef struct node_ {
 
 Author suggest the idea of using a binary search with the `fatnodes` being ordered by the version stamp and each access step would be around `O(log m)` time.
 
-Author's second idea is **node copying**. Instead of holding all the `fatnodes` we will only allow a fixed number of `fatnodes` to be stored in it.
+Author's second idea is **node copying**. Instead of holding all the `fatnodes` we will only allow a fixed number of `fatnodes` to be stored in it. 
+> When we run of space in a node for new pointers, we create a new copy of the node, containing only the current field values. The old pointers should contain a pointer to the new copy.
+
+Single **update step** can cause large number of node to be copied;
+
+```C
+// ephemeral node
+typedef struct ephnode {
+    int version;
+    float data;
+} ephemeralnode;
+
+// ephemeral structure
+typedef struct ephstruct {
+    int version;
+    ephemeralnode* next;
+    ephemeralnode* prev;
+} ephemeralstruct;
+
+// persistent node
+typedef struct pernode {
+    int version;
+    float data;
+} persistentnode;
+
+// persistent structure
+typedef struct perstruct {
+    int version;
+    persistentnode* next;
+    persistentnode* prev;
+}persistentstruct;
+```
+
+`x` is an ephemeral node occuring in version `i` of the ephemeral structure. 
+
+```C
+ephemeralnode* x = createEphemeralNode(5.00);
+ephmeralstruct.add(x);
+```
+> let `d` be the number of pointer in an ephemeral node and let `p` be the maximum number of predecessors of an ephemeral node in any single version; Assume that `p` is constant.
+
+> Each ephemeral node `x` corresponds to a set `F(x)` of persistent nodes, called a **family**. The members of `F(x)` form a singly-linked list, linked by the copy pointers.
+
+Navigation through the persistent structure is the same as in the `fat node` method. We will have an *access array* with access for `entry nodes` for access of data in `O(1)` time.
+
+<p align="center"> <a href=""> Implementation On Fat Node</p>
+<p align="center"> <a href=""> Implementation On Node Copying</p>
 
 ### References
 
