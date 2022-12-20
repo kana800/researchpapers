@@ -44,6 +44,8 @@ typedef struct node_ {
 } node;
 ```
 
+<p align="center"> <a href=""> Implementation On Fat Node</p>
+
 > The method has two related drawbacks; `fatnode` must be represented by linked collection of fixed-size nodes. This poses no fundamental difficulty but complicates the implementation. Second, choosing which pointer in a `fatnode` to follow when simulating an access step takes more than constant time.
 
 Author suggest the idea of using a binary search with the `fatnodes` being ordered by the version stamp and each access step would be around `O(log m)` time.
@@ -93,7 +95,6 @@ ephmeralstruct.add(x);
 
 Navigation through the persistent structure is the same as in the `fat node` method. We will have an *access array* with access for `entry nodes` for access of data in `O(1)` time.
 
-<p align="center"> <a href=""> Implementation On Fat Node</p>
 <p align="center"> <a href=""> Implementation On Node Copying</p>
 
 ### References
