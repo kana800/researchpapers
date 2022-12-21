@@ -9,7 +9,7 @@ if (MakingDataStructuresPersistent)
 
 	set(HEADERS
 		"MakingDataStructuresPersistent//fatnode.h"	
-	)
+	 "MakingDataStructuresPersistent/nodecopying.h")
 endif()
 
 add_library(MakingDataStructuresPersistent ${SRCES} ${HEADERS})

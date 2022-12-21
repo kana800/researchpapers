@@ -1,3 +1,8 @@
+/*
+This file contains an implementation on
+fat nodes from the paper making data 
+structures persistent
+*/
 #ifndef FATNODE_H
 #define FATNODE_H
 
@@ -52,11 +57,6 @@ node* createNodeStructure(float val) {
 	m->m_fatnode = NULL;
 	m->nodevalue = val;
 	m->versionstamp = initversion;
-
-#if DEBUG
-	printf("Created Node Struct\n");
-#endif
-
 	return m;
 }
 

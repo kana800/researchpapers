@@ -29,6 +29,8 @@ Author's first idea is to record all updates to node fields in the node themselv
 Author suggest to use an auxiliary data structure to store the access pointer of the various version. I think it would be interesting use *linked* `fatnode` instead of using an *helper*.
 for an *array* updating any version takes `O(1)` time. My problem is that if we are using an array to store the `fatnode` it is going to limit the *amount of* `fatnode` we can use.
 
+<p align="center"> <a href=""> Implementation On Fat Node</p>
+
 ```c
 // maybe something like this?
 typedef struct fatnode_{
@@ -43,8 +45,6 @@ typedef struct node_ {
     node* nextnode;
 } node;
 ```
-
-<p align="center"> <a href=""> Implementation On Fat Node</p>
 
 > The method has two related drawbacks; `fatnode` must be represented by linked collection of fixed-size nodes. This poses no fundamental difficulty but complicates the implementation. Second, choosing which pointer in a `fatnode` to follow when simulating an access step takes more than constant time.
 
@@ -116,3 +116,4 @@ location = {Berkeley, California, USA},
 series = {STOC '86}
 }
 ```
+- [MIT 68.851 Advanced Data Structures Persistent Data Structure](https://www.youtube.com/watch?v=T0yzrZL1py0) | [Notes]()
