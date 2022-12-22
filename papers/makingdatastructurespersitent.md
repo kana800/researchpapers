@@ -97,6 +97,10 @@ Navigation through the persistent structure is the same as in the `fat node` met
 
 <p align="center"> <a href=""> Implementation On Node Copying</p>
 
+I can't grasp the idea of `node copying`; like the author mentioned.
+
+---
+
 ### References
 
 ```bibtex

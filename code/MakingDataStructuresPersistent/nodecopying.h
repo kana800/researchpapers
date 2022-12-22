@@ -25,15 +25,14 @@ typedef struct pernode {
 	ephemeralnode* prepointer[p]; // contains predecessor pointers
 } persistentnode;
 
-typedef struct ephstruct {
-	ephemeralnode* node;
-	persistentnode* family[p];
-} ephemeralstruct;
-
 typedef struct perstruct {
 	persistentnode* node;
 	persistentnode* nextnode;
 } persistentstruct;
 
+typedef struct ephstruct {
+	ephemeralnode* node;
+	persistentstruct* family;
+} ephemeralstruct;
 
 #endif // !NODECOPYING_H
