@@ -1,7 +1,8 @@
 /*
 This file contains an implementation on
 fat nodes from the paper making data 
-structures persistent
+structures persistent; This an implemenation of
+partial persistent data structure
 */
 #ifndef FATNODE_H
 #define FATNODE_H

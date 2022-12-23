@@ -29,7 +29,7 @@ Author's first idea is to record all updates to node fields in the node themselv
 Author suggest to use an auxiliary data structure to store the access pointer of the various version. I think it would be interesting use *linked* `fatnode` instead of using an *helper*.
 for an *array* updating any version takes `O(1)` time. My problem is that if we are using an array to store the `fatnode` it is going to limit the *amount of* `fatnode` we can use.
 
-<p align="center"> <a href=""> Implementation On Fat Node</p>
+<p align="center"> <a href=""> Implementation On Fat Node </a></p>
 
 ```c
 // maybe something like this?
@@ -95,9 +95,46 @@ ephmeralstruct.add(x);
 
 Navigation through the persistent structure is the same as in the `fat node` method. We will have an *access array* with access for `entry nodes` for access of data in `O(1)` time.
 
-<p align="center"> <a href=""> Implementation On Node Copying</p>
+<p align="center"> <a href=""> Implementation On Node Copying </a></p>
 
-I can't grasp the idea of `node copying`; like the author mentioned.
+I can't grasp the idea of `node copying`; like the author mentioned; So the above implementation is bit incomplete.
+
+---
+
+### Full Persistence
+
+> The lack of linear ordering on versions makes navigation through the resulting persistent structure problematic. 
+
+In the lecture, [Persistent Data Structures By MIT](https://www.youtube.com/watch?v=T0yzrZL1py0), **Order-Maintenance Data Structure** which is a *magical linked list* is used to avoid the above problem. The Data Structure is capable of finding relative order of `2` *items/nodes* in `O(1)` time. Author uses **version list** to avoid the above mentioned problem.
+
+> using `fat nodes` to make a linked structure fully persistent.
+
+```c
+int arbitrarily_large_number = 5;
+
+// ephemeral node
+typedef struct ephnode {
+    int version;
+    float data;
+} ephemeralnode;
+
+typedef struct versionrec {
+    int versionstamp;
+    // other fields in the 
+    // in an ephemeralnode
+    float data;
+    // ...
+} versionrecords;
+
+typedef struct fatnode_{
+    versionrecords* vr[arbitrarily_large_number];
+    struct fatnode* nextnode;
+} fatnode;
+```
+
+> The efficiency of the fat node method is the same for full persistence as its for partial persistence. The space cost per update step is `O(1)` and time cost per access step is `O(log m)`, if a fat node is represented as a search tree of version records, ordered by version stamp.
+
+> For full persistence instead of using `Node Copying` you can use `Node Splitting`.  Persistent node will hold version records. `d` will be the number of pointers in an ephemeral node and `p` will be constant upper bound on the in-degree of an ephemeral node. Ephemeral node contain a set of `p inverse pointers`, inverse pointers point to a valid node with valid versions from the ephemeral node.
 
 ---
 

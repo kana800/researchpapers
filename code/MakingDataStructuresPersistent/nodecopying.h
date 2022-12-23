@@ -1,6 +1,7 @@
 /*
 This file contains an implementation of node-copying
-from the paper making data structures persistent
+from the paper making data structures persistent; This
+is an implementation of partial persistent of data structures
 */
 #ifndef NODECOPYING_H
 #define NODECOPYING_H
