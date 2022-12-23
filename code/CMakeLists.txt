@@ -4,12 +4,13 @@ set(MakingDataStructuresPersistent 1)
 
 if (MakingDataStructuresPersistent)
 	set(SRCES 
-		"MakingDataStructuresPersistent//fatnode.c"	
+		"MakingDataStructuresPersistent/fatnode.c"	
 	)
 
 	set(HEADERS
-		"MakingDataStructuresPersistent//fatnode.h"	
-	 "MakingDataStructuresPersistent/nodecopying.h" "MakingDataStructuresPersistent/fatnode_f.h")
+		"MakingDataStructuresPersistent/fatnode.h"	
+		"MakingDataStructuresPersistent/nodecopying.h"
+	)
 endif()
 
 add_library(MakingDataStructuresPersistent ${SRCES} ${HEADERS})
