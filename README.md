@@ -10,7 +10,7 @@ This repo consist of summaries and code for collection of research papers and ar
 
 ### Table Of Content
 
-1. [`Code`](code): contains the code for the Implementations
+1. [`Code`](code): contains the code for the implementations
 2. [`External`](external): external libraries; check [submodules](.gitmodules)
-3. [`Papers`](papers): contains the summaries for the research papers` 
+3. [`Papers`](papers): contains the summaries for the research papers 
 4. [`Tests`](tests): contains `test` cases for the implementations.
