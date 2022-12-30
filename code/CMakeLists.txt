@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(MakingDataStructuresPersistent 1)
+set(RTree 1)
 
 if (MakingDataStructuresPersistent)
 	set(SRCES 
@@ -12,6 +13,16 @@ if (MakingDataStructuresPersistent)
 		"MakingDataStructuresPersistent/nodecopying.h"
 	)
 endif()
+
+
+if (RTree) 
+	set(SRCES 
+	)
+
+	set(HEADERS
+	)
+endif()
+
 
 add_library(MakingDataStructuresPersistent ${SRCES} ${HEADERS})
 
