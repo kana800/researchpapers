@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-set(MakingDataStructuresPersistent 1)
+set(MakingDataStructuresPersistent 0)
 set(RTree 1)
 
 if (MakingDataStructuresPersistent)
@@ -12,21 +12,31 @@ if (MakingDataStructuresPersistent)
 		"MakingDataStructuresPersistent/fatnode.h"	
 		"MakingDataStructuresPersistent/nodecopying.h"
 	)
-endif()
 
+	add_library(
+		MakingDataStructuresPersistent 
+		${SRCES} ${HEADERS})
+
+	set_target_properties(
+		MakingDataStructuresPersistent PROPERTIES 
+		LINKER_LANGUAGE C
+	)
+endif()
 
 if (RTree) 
-	set(SRCES 
+	set(RTree_SRCES 
+		"RTree/rtree.c"
 	)
 
-	set(HEADERS
+	set(RTree_HEADERS
+		"RTree/rtree.h"
 	)
-endif()
+	add_library(
+		RTree 
+		${RTree_SRCES} ${RTree_HEADERS})
 
-
-add_library(MakingDataStructuresPersistent ${SRCES} ${HEADERS})
-
-set_target_properties(
-	MakingDataStructuresPersistent PROPERTIES 
-	LINKER_LANGUAGE C
+	set_target_properties(
+		RTree PROPERTIES 
+		LINKER_LANGUAGE C
 )
+endif()

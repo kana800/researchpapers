@@ -17,7 +17,7 @@ Author defines a *linked data structure* to be a finite collection of *nodes* an
 > In Overmars research, he studied three simple techniques to obtain partial persistence.
 
 > 1. Explicitly store every version by copying the entire *ephemeral* structure after each update. This cost ![](https://latex.codecogs.com/png.image?\inline&space;\dpi{110}\Omega(n)) time and space per update
-> 2. Store the entire update sequence, rebuilding the current version from scratch each time an *access operation* is performed. Storing an update takes `O(m)` space but accessin`g the version `i` takes ![](https://latex.codecogs.com/png.image?\inline&space;\dpi{110}\Omega(i))  
+> 2. Store the entire update sequence, rebuilding the current version from scratch each time an *access operation* is performed. Storing an update takes `O(m)` space but accessing the version `i` takes ![](https://latex.codecogs.com/png.image?\inline&space;\dpi{110}\Omega(i))  
 > A hybrid method to store entire update sequence every `k`th version. *suitable value for `k` should be chosen*. The accessing version `i` requires rebuilding it from version `k[i/k]`. 
 > 3. Dynamization technique of `Bentley and Saxe`.
 
