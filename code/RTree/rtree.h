@@ -10,6 +10,7 @@ be stored in a tuple
 #define RTREE_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct tuple_ {
 	double x0;
@@ -21,13 +22,12 @@ typedef struct tuple_ {
 
 typedef struct node_ {
 	char repr; // character to represent the node
-	tuple* tuple; // stores the content nodes
+	struct tuple_* tuple; // stores the content nodes
 	struct node_* left; // left sub-tree
 	struct node_* right; // right sub-tree
 } node;
 
 node* ROOTNODE = NULL; // stores the rootnode
-
 
 #ifdef  DEBUG
 void printTree(node* rootnode) {
@@ -73,6 +73,15 @@ node* createNode(char repr, tuple* tuple) {
 	n->left = NULL;
 	n->right = NULL;
 	return n;
+}
+
+void freeNode(node* n) {
+	/*summary: release the node from the memory
+	args:
+		node* n -> pointer to the ndoe;
+	*/
+	free(n->tuple);
+	free(n);
 }
 
 int insert(node* root, char repr, tuple* tuple) {
