@@ -11,68 +11,98 @@ be stored in a tuple
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
-typedef struct tuple_ {
+typedef struct rect_ {
 	double x0;
 	double x1;
 	double y0;
 	double y1;
-} tuple;
-
+	double area; // stores the area
+} rect;
 
 typedef struct node_ {
 	char repr; // character to represent the node
-	struct tuple_* tuple; // stores the content nodes
-	struct node_* left; // left sub-tree
-	struct node_* right; // right sub-tree
+	int full;
+	struct rect_* rect_1; // stores the rectangle# 1
+	struct rect_* rect_2; // stores the rectangle# 2
+	bool leaf; // leaf node status
 } node;
 
-node* ROOTNODE = NULL; // stores the rootnode
+typedef struct r_tree {
+	int height; // height of the tree
+	node* rootnode; // pointer to root node
+} rtree;
 
-#ifdef  DEBUG
-void printTree(node* rootnode) {
-#else
-static void printTree(node* rootnode) {
-#endif
-	/*summary: print the tree
-	args:
-		node* rootnode -> pointer to a rootnode
-	*/
-	return;
-}
-
-
-tuple* createBoundingBoxes(
+rect* createBoundingBoxes(
 	double x0, double y0, double x1, double y1) {
-	/*summary: create a tuple in the heap
+	/*summary: create a rectangle in the heap
 	args:
 		double x0, y0 -> coordinate points [point 1]
 		double x1, y1 -> coordinate points [point 2]
 	ret:
-		tuple* -> pointer to a tuple 
+		rect -> pointer to a rectangle
 	*/
-	tuple* t = malloc(sizeof(tuple));
+	rect* t = malloc(sizeof(rect));
 	t->x0 = x0;
 	t->y0 = y0;
 	t->x1 = x1;
 	t->y1 = y1;
+	// calculating the area of the tuple;
+	t->area =  (x1 - x0) * (y1 - y0);
 	return t;
 }
 
-node* createNode(char repr, tuple* tuple) {
+node* createNode(char repr, bool leaf) {
 	/*summary: create a node in the heap
 	args:
 		char* repr -> representation character of the node
-		tuple* tuple -> pointer to the tuple; data of 2D rect
+		bool leaf -> is the node a leaf
 	ret:
 		node* -> pointer to a node
 	*/
 	node* n = malloc(sizeof(node));
 	n->repr = repr;
-	n->tuple = tuple;
-	n->left = NULL;
-	n->right = NULL;
+	n->full = false;
+	n->rect_1 = NULL;
+	n->rect_2 = NULL;
+	n->leaf = leaf;
 	return n;
+}
+
+int addRectToNode(node* n,rect* rect) {
+	/*summary: add a rectangle to the node
+	args:
+		node* n -> pointer to the node
+		rect* rect -> pointer to a rectangle
+	ret:
+		1 -> success
+		-1 -> failed
+	*/
+	if (n->full) {
+		// need to split the rect here
+		// will implement later
+		return -1;
+	}
+	if (n->rect_1 == NULL) n->rect_1 = rect;
+	else {
+		n->rect_2 = rect;
+		n->full = true;
+		n->leaf = false;
+	}
+	return 1;
+}
+
+rtree* createRTree() {
+	/*summary: creates a r-tree in the heap; since the dimension is 2 
+	this function doesnt much of use but we are going to use it anyways
+	ret:
+		rtree* -> pointer to a rtree
+	*/
+	rtree* r = malloc(sizeof(rtree));
+	r->height = 0;
+	r->rootnode = createNode('a',true);
+	return r;
 }
 
 void freeNode(node* n) {
@@ -80,47 +110,53 @@ void freeNode(node* n) {
 	args:
 		node* n -> pointer to the ndoe;
 	*/
-	free(n->tuple);
+	rect* tr1 = n->rect_1;
+	rect* tr2 = n->rect_2;
+	n->rect_1 = NULL;
+	n->rect_2 = NULL;
+	if (n->leaf) free(tr1);
+	else {
+		free(tr1);
+		free(tr2);
+	}
 	free(n);
 }
 
-int insert(node* root, char repr, tuple* tuple) {
+void freeTree(rtree* r) {
+	/*summary: release the tree from the memory
+	args:
+		rtree* r -> pointer to a rtree
+	*/
+	free(r);
+}
+
+int doesItHaveBiggerArea(node* n, rect* r1) {
+	/*summary: HELPER
+	compares two tuples together;
+	t1 against t2;
+	args:
+		tuple* t1
+		tuple* t2
+	ret:
+		t1 > t2 : 1
+		t1 == t2 : 0
+		t1 < t2 : -1
+	*/
+}
+
+void insert(rtree* r, rect* rect) {
 	/*summary: inserts the node to the tree structure
 	args:
-		node* root -> root node
-		char* repr -> representation character of the node
-		tuple* tuple -> pointer to the tuple; data of 2D rect
-	ret:
-		1 -> Success
-		-1 -> Fail
+		rtree* r -> rtree
+		rect* rect -> rectangle
 	*/
-	if (ROOTNODE == NULL) {
-		ROOTNODE = root;
-		return 1;
-	} 
 
-	return -1;
-}
+	// no root nodes present is rtree
+	// or rtree rootnode is a leaf
+	if (r->rootnode->leaf) {
+		int ret = addRectToNode(r->rootnode, rect);
+	}
 
-node* searchByChar(node* root, char repr) {
-	/*summary: search by character
-	args:
-		node* root -> root node
-		char* repr -> representation character of the node
-	ret:
-		node* -> pointer to the node
-	*/
-}
-
-
-node* searchByTuple(node* root, tuple* tuple) {
-	/*summary: search by tuple
-	args:
-		node* root -> root node
-		tuple* tuple -> pointer to the tuple; data of 2D rect
-	ret:
-		node* -> pointer to the node
-	*/
 }
 
 

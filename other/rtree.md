@@ -42,6 +42,40 @@ The *non-leaf node* consist of
 > 3. Every non-leaf node has between `m` and `M` unless it is the root.
 > 4. For each entry `(I, child - pointer)` in a non-leaf node, `I` is the smallest rectangle spatially contains the rectangles in a child node.
 
+
+### Implementation of R-Tree
+
+- R-Tree is implemented for 2D spatial data;
+- The maximum number of `entries` in a node will be `2`
+
+<p align="center"> <a href=""> Implementation On R-Tree </a></p>
+
+#### Object Creation
+
+Since the maximum of number of entries in a node is `2`; we can easily *hard-code* the values into the `node`.
+
+```c
+typedef struct node_ {
+	char repr; // character to represent the node
+	struct rect_* rect_1; // stores the rectangle# 1
+	struct rect_* rect_2; // stores the rectangle# 2
+	bool leaf; // leaf node status
+} node;
+```
+
+If we have more than `2` entries we can create a `group` of `rect`;
+
+```C
+typedef struct grp_ {
+	struct rect_** rect;
+} group;
+```
+
+#### Insertion
+
+When inserting a `node` we need to find smallest rectangle for the object.
+
+
 ### References
 
 - [R-Tree by Vlan Ag](https://www.youtube.com/watch?v=Jd8F2hVnGtQ)

@@ -16,13 +16,22 @@ START_TEST(test_m_createnode) {
 
     */
 
-    tuple* t1 = createBoundingBoxes(1, 2, 3, 4);
+    rect* t1 = createBoundingBoxes(1, 2, 3, 4);
     ck_assert_double_eq(t1->x0, 1);
     ck_assert_double_eq(t1->y0, 2);
     ck_assert_double_eq(t1->x1, 3);
     ck_assert_double_eq(t1->y1, 4);
+    // area = 4 - 2 * 3 - 1 = 4
+    ck_assert_double_eq(t1->area, (double)4);
+    node* n1 = createNode('a', 1,2,3,4,true);
+    ck_assert_double_eq(n1->rect_1->y0, 2);
+    // free the node
+    freeNode(n1);
+    ck_assert_double_eq(t1->x0, 1);
 
-} END_TEST
+}
+END_TEST
+
 
 Suite* tree_suite(void) {
     Suite* s;
@@ -43,7 +52,7 @@ int main() {
     SRunner *sr;
 
 	s = tree_suite();
-	printf("RTree\n");
+	printf("Implementation of a R-Tree\n");
 	sr = srunner_create(s);
 	srunner_run_all(sr, CK_VERBOSE);
 	number_failed = srunner_ntests_failed(sr);
