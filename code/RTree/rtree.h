@@ -12,6 +12,7 @@ be stored in a tuple
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 typedef struct rect_ {
 	double x0;
@@ -21,12 +22,19 @@ typedef struct rect_ {
 	double area; // stores the area
 } rect;
 
+typedef struct node_ node;
+
+typedef struct nodeentry_ {
+	node** ptr;
+	int count;
+	bool isFull;
+}childpointer;
+
 typedef struct node_ {
 	char repr; // character to represent the node
-	int full;
-	struct rect_* rect_1; // stores the rectangle# 1
-	struct rect_* rect_2; // stores the rectangle# 2
-	bool leaf; // leaf node status
+	bool leaf; // is it a leaf node
+	struct childpointer* arr; // holds the child pointers
+	struct rect_* rect; // rectangle that contain all the child pointers
 } node;
 
 typedef struct r_tree {
@@ -34,8 +42,7 @@ typedef struct r_tree {
 	node* rootnode; // pointer to root node
 } rtree;
 
-rect* createBoundingBoxes(
-	double x0, double y0, double x1, double y1) {
+rect* createBoundingBoxes(double x0, double y0, double x1, double y1) {
 	/*summary: create a rectangle in the heap
 	args:
 		double x0, y0 -> coordinate points [point 1]
@@ -53,44 +60,76 @@ rect* createBoundingBoxes(
 	return t;
 }
 
-node* createNode(char repr, bool leaf) {
+childpointer* createChildPointerArray() {
+	/*summary: creates a child pointer array in the heap
+	note:
+		maximum number of items in a array would be M; which
+		is 2
+	ret:
+		childpointer* -> pointer to childpointer array
+	*/
+	childpointer* cparr = malloc(sizeof(cparr));
+	node* n = malloc(sizeof(node) * 2);
+	cparr->ptr = n;
+	cparr->count = 0;
+	cparr->isFull = false;
+	return cparr;
+}
+
+bool addChildPointer(childpointer* arr, node* n) {
+	/*summary: add node to childpointer arr
+	args:
+		childpointer* arr -> pointer to the array
+		node* n -> pointer to the node
+	ret:
+		true -> success
+		false -> fail
+	possible reasons for fail;
+		array is full
+	*/
+	int currcount = arr->count;
+	if (currcount > 1) {
+		fprintf(stderr, "child pointer array is full\n");
+		arr->isFull = true;
+		return false;
+	}
+	arr->ptr[currcount] = n;
+	arr->count++;
+	return true;
+}
+
+node* createNode(char repr, bool leaf, ...) {
 	/*summary: create a node in the heap
 	args:
 		char* repr -> representation character of the node
 		bool leaf -> is the node a leaf
+	optional args:
+			rect* -> pointer to a rect
+			node* -> pointer for the child pointer
 	ret:
 		node* -> pointer to a node
 	*/
 	node* n = malloc(sizeof(node));
 	n->repr = repr;
-	n->full = false;
-	n->rect_1 = NULL;
-	n->rect_2 = NULL;
-	n->leaf = leaf;
-	return n;
-}
-
-int addRectToNode(node* n,rect* rect) {
-	/*summary: add a rectangle to the node
-	args:
-		node* n -> pointer to the node
-		rect* rect -> pointer to a rectangle
-	ret:
-		1 -> success
-		-1 -> failed
-	*/
-	if (n->full) {
-		// need to split the rect here
-		// will implement later
-		return -1;
+	// obtaining rect value
+	va_list parameters;
+	va_start(parameters, leaf);
+	if (leaf) {
+		n->rect = va_arg(parameters, struct rect_ *);
+		va_end(parameters);
+		// no child pointer for leaf node
+		n->arr = NULL;
+		n->leaf = true;
 	}
-	if (n->rect_1 == NULL) n->rect_1 = rect;
 	else {
-		n->rect_2 = rect;
-		n->full = true;
+		n->arr = createChildPointerArray();
+		node* tempnode = va_arg(parameters, struct node_ *);
+		addChildPointer(n->arr, tempnode);
+		n->rect = tempnode->rect;
 		n->leaf = false;
+		va_end(parameters);
 	}
-	return 1;
+	return n;
 }
 
 rtree* createRTree() {
@@ -110,15 +149,11 @@ void freeNode(node* n) {
 	args:
 		node* n -> pointer to the ndoe;
 	*/
-	rect* tr1 = n->rect_1;
-	rect* tr2 = n->rect_2;
-	n->rect_1 = NULL;
-	n->rect_2 = NULL;
-	if (n->leaf) free(tr1);
-	else {
-		free(tr1);
-		free(tr2);
-	}
+	free(n->rect);
+	n->rect = NULL;
+	childpointer* tempcp = n->arr;
+	free(tempcp->ptr);
+	free(tempcp->count);
 	free(n);
 }
 
@@ -130,10 +165,8 @@ void freeTree(rtree* r) {
 	free(r);
 }
 
-int doesItHaveBiggerArea(node* n, rect* r1) {
-	/*summary: HELPER
-	compares two tuples together;
-	t1 against t2;
+rect* doesItHaveBiggerArea(node* n, rect* r1) {
+	/*summary: compares two tuples together;
 	args:
 		tuple* t1
 		tuple* t2
@@ -144,17 +177,67 @@ int doesItHaveBiggerArea(node* n, rect* r1) {
 	*/
 }
 
-void insert(rtree* r, rect* rect) {
+node* getBiggestChildNode(childpointer* cp) {
+	/*summary: return the biggest node in the
+	childpointer
+	args:
+		childpointer* cp -> pointer childpointer array
+	ret:
+		node * -> pointer to a node
+	*/
+
+	// if not full; return the
+	// first node
+	if (!cp->isFull) {
+		return cp->ptr[0];
+	}
+	return cp->ptr[0] > cp->ptr[1] 
+		? cp->ptr[0] : cp->ptr[1];
+}
+
+void adjustNodeSize(node* n) {
+	/*summary: Adjust the size of the node
+	args:
+		node* n -> pointer to a node
+	*/
+	// checking if the current rect
+	// is already big enough
+	node* tempNode = getBiggestChildNode(n->arr);
+	if (n->rect->area 
+		<= tempNode->rect->area) {
+		n->rect = tempNode;
+		return;
+	} 
+	return;
+}
+
+void insert(rtree* r, char* repr, rect* rect) {
 	/*summary: inserts the node to the tree structure
 	args:
 		rtree* r -> rtree
+		char* repr -> representation of the node
 		rect* rect -> rectangle
 	*/
 
 	// no root nodes present is rtree
-	// or rtree rootnode is a leaf
-	if (r->rootnode->leaf) {
-		int ret = addRectToNode(r->rootnode, rect);
+	if (r->rootnode == NULL) {
+		// rect will be added as the child pointer in
+		// to the rtree and the rect in node will be
+		// pointed to the rect
+		r->rootnode = createNode(repr, false, rect);
+		return;
+	}
+
+	node* tempNode = r->rootnode;
+	// traversing the child pointers 
+	while (tempNode->arr != NULL) {
+		childpointer* tempcp = tempNode->arr;
+		if (!tempcp->isFull) {
+		// not full; add it to the child pointer and
+		// adjust the node's rect
+			addChildPointer(tempcp, tempNode);
+
+		}
 	}
 
 }

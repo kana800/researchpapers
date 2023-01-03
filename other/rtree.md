@@ -8,7 +8,7 @@
 
 > A spatial database consists of a collection of tuples representing spatial objects.
 
-The *leaf nodes* consist of 
+The *leaf nodes* consist of: 
 ```
 (I, tuple-identifier)
 I = (I0,I1,...,In)
@@ -19,56 +19,80 @@ I = (I0,I1,...,In)
 
 - tuple-identifier
 
-Example:
-```
-(([1,2],[2,4]), L1)
-```
-The rectangle in the database will be identified as `L1`
-
-The number of entries that fit in one node is maximum `M` and minimum `m` 
-`m <= M/2`
-
-The *non-leaf node* consist of 
+The *non-leaf node* consist of: 
 ```
 (I, child-pointer)
 ```
 - `I` is the smallest rectangle that spatially contains all the rectangles/entries in the child node
 - child-pointer is the address of a lower node in the *R-Tree*
 
+Example:
+```
+(([1,2],[2,4]), L1)
+```
+The rectangle in the database will be identified as `L1`
+
+The number of entries that fit in one node is maximum `M` and minimum `m`(`m <= M/2`).
+
 ### Properties of an R-Tree
 
 > 1. Every leaf node contains between `m` and `M` index records unless it is the root.
 > 2. All leaf nodes are at the same level.
 > 3. Every non-leaf node has between `m` and `M` unless it is the root.
-> 4. For each entry `(I, child - pointer)` in a non-leaf node, `I` is the smallest rectangle spatially contains the rectangles in a child node.
+> 4. For each entry `(I, child-pointer)` in a non-leaf node, `I` is the smallest rectangle spatially contains the rectangles in a child node.
 
 
 ### Implementation of R-Tree
-
-- R-Tree is implemented for 2D spatial data;
-- The maximum number of `entries` in a node will be `2`
 
 <p align="center"> <a href=""> Implementation On R-Tree </a></p>
 
 #### Object Creation
 
-Since the maximum of number of entries in a node is `2`; we can easily *hard-code* the values into the `node`.
+> Our R-Tree **consists of nodes which we'll be able to divide into leaves (containing key-value entries)** and 
+branches containing many children - be it leaves or other branches.
+
+Also we will be adding boolean value called `leaf` that will tell us whether `node` is a `leaf` or not. 
+
+> while only leaf nodes contain the values, keys are present in both leaves and branches. 
+However, branch keys (for our 2 dimensional space represented by rectangles) are describing so called 
+**minimum bounding rectangle** (MBR) which is sufficient to cover all of the children keys stored 
+within that parent.
 
 ```c
 typedef struct node_ {
-	char repr; // character to represent the node
-	struct rect_* rect_1; // stores the rectangle# 1
-	struct rect_* rect_2; // stores the rectangle# 2
-	bool leaf; // leaf node status
+	char repr; // character representation of the node (tuple-identifier)
+	bool leaf; // is it a leaf node
+	struct rect_* rect; // rectangle that spatially contains all the entries;
+	struct nodeentry_* childpointer; // holds the child pointers	
 } node;
 ```
 
-If we have more than `2` entries we can create a `group` of `rect`;
+ - `struct rect_* rect` is the pointer that holds the `rect` object that spatially contains all the entries/child pointers;
+```c
+typedef struct rect_{
+	double x0;
+	double x1;
+	double y0;
+	double y1;
+	double area;
+}rect;
+```
+ - `struct nodeentry_* childpointer` contains pointer to the children nodes;
 
-```C
-typedef struct grp_ {
-	struct rect_** rect;
-} group;
+ ```c
+ typedef struct nodeentry_ {
+	node* ptr;
+	node* nextchild;
+}childpointer;
+ ```
+
+`r_tree` structure will data related to the tree data structure; `rootnode` will hold starting node;
+
+```c
+typedef struct r_tree {
+	int height; // tracks the height of the tree
+	node* rootnode; // pointer to root node
+} rtree;
 ```
 
 #### Insertion
@@ -81,4 +105,5 @@ When inserting a `node` we need to find smallest rectangle for the object.
 - [R-Tree by Vlan Ag](https://www.youtube.com/watch?v=Jd8F2hVnGtQ)
 - [R-Tree Slides](https://www2.cs.sfu.ca/CourseCentral/454/jpei/slides/R-Tree.pdf)
 - [RTree Wikipedia](https://en.wikipedia.org/wiki/R-tree)
-
+- [Implementation on R-Tree](https://github.com/tidwall/rtree.c/blob/master/rtree.c)
+- [Blog about R-Tree](https://bartoszsypytkowski.com/r-tree/)

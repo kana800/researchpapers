@@ -6,32 +6,54 @@
 START_TEST(test_m_createnode) {
     /*summary: 
     testing the node creation of objects;
-        - tuple
         - node
+        - childpointer
+        - rect
     testing functions:
         tuple* createBoundingBoxes(
             double x0, double y0, 
             double x1, double y1)
-        createNode(char repr, tuple* tuple)
-
+        createNode
     */
 
-    rect* t1 = createBoundingBoxes(1, 2, 3, 4);
-    ck_assert_double_eq(t1->x0, 1);
-    ck_assert_double_eq(t1->y0, 2);
-    ck_assert_double_eq(t1->x1, 3);
-    ck_assert_double_eq(t1->y1, 4);
-    // area = 4 - 2 * 3 - 1 = 4
-    ck_assert_double_eq(t1->area, (double)4);
-    node* n1 = createNode('a', 1,2,3,4,true);
-    ck_assert_double_eq(n1->rect_1->y0, 2);
-    // free the node
-    freeNode(n1);
-    ck_assert_double_eq(t1->x0, 1);
 
+    rect* r1 = createBoundingBoxes(1, 2, 3, 4);
+    rect* r2 = createBoundingBoxes(2, 3, 4, 5);
+
+    node* n1 = createNode('L', true, r1);
+    node* n3 = createNode('L2', true, r2);
+
+    ck_assert_ptr_null(n1->arr);
+    ck_assert_int_eq(n1->leaf, true);
+    ck_assert_double_eq(n1->rect->x0, 1);
+    ck_assert_double_eq(n1->rect->x1, 3);
+    ck_assert_double_eq(n1->rect->y0, 2);
+    ck_assert_double_eq(n1->rect->y1, 4);
+
+
+    node* n2 = createNode('B', false, n1);
+    ck_assert_ptr_null(n1->arr);
+    ck_assert_int_eq(n1->leaf, true);
+    ck_assert_ptr_eq(n2->rect, n1->rect);
+
+    addChildPointer(n2->arr, n3);
+    childpointer* tempcp = n2->arr;
+
+    ck_assert_ptr_eq(tempcp->ptr[0], n1);
+    ck_assert_ptr_eq(tempcp->ptr[1], n3);
+
+    //freeNode(n1);
+    //freeNode(n2);
+    //freeNode(n3);
 }
 END_TEST
 
+START_TEST(test_m_getBiggestChildNode) {
+    /*summary:
+    test for function:
+        getBiggestChildNode(node* n);
+    */
+}
 
 Suite* tree_suite(void) {
     Suite* s;
