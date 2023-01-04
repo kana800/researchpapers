@@ -26,6 +26,7 @@ typedef struct node_ node;
 
 typedef struct nodeentry_ {
 	node** ptr;
+	char repr;
 	int count;
 	bool isFull;
 }childpointer;
@@ -71,9 +72,31 @@ childpointer* createChildPointerArray() {
 	childpointer* cparr = malloc(sizeof(cparr));
 	node* n = malloc(sizeof(node) * 2);
 	cparr->ptr = n;
+	cparr->ptr[0] = NULL;
+	cparr->ptr[1] = NULL;
 	cparr->count = 0;
 	cparr->isFull = false;
 	return cparr;
+}
+
+void printChildPointer(childpointer* arr) {
+	/*summary: prints the childpointers
+	args:
+		childpointer* arr -> pointer to the array
+	*/
+	printf("-----------------------------\n");
+	printf("[0] rect: %.2f %.2f %.2f %.2f\n",
+		arr->ptr[0]->rect->x0,
+		arr->ptr[0]->rect->y0,
+		arr->ptr[0]->rect->x1,
+		arr->ptr[0]->rect->y1);
+	if (arr->isFull) {
+		printf("[1] rect: %.2f %.2f %.2f %.2f\n",
+			arr->ptr[1]->rect->x0,
+			arr->ptr[1]->rect->y0,
+			arr->ptr[1]->rect->x1,
+			arr->ptr[1]->rect->y1);
+	}
 }
 
 bool addChildPointer(childpointer* arr, node* n) {
@@ -88,14 +111,93 @@ bool addChildPointer(childpointer* arr, node* n) {
 		array is full
 	*/
 	int currcount = arr->count;
-	if (currcount > 1) {
+	if (arr->isFull) {
 		fprintf(stderr, "child pointer array is full\n");
-		arr->isFull = true;
 		return false;
 	}
 	arr->ptr[currcount] = n;
 	arr->count++;
+	if (arr->count > 1) arr->isFull = true;
 	return true;
+}
+
+node* getBiggestChildNode(childpointer* cp) {
+	/*summary: return the biggest node in the
+	childpointer
+	args:
+		childpointer* cp -> pointer childpointer array
+	ret:
+		node * -> pointer to a node
+	*/
+
+	// if not full; return the
+	// first node
+	if (!cp->isFull) {
+		return cp->ptr[0];
+	}
+	node* n1 = cp->ptr[0];
+	node* n2 = cp->ptr[1];
+	return n1->rect->area >
+		n2->rect->area ? n1 : n2;
+}
+
+node* getSmallestChildNode(childpointer* cp) {
+	/*summary: return the smallest node in the
+	childpointer
+	args:
+		childpointer* cp -> pointer childpointer array
+	ret:
+		node * -> pointer to a node
+	*/
+	// if not full; return the
+	// first node
+	if (!cp->isFull) {
+		return cp->ptr[0];
+	}
+	node* n1 = cp->ptr[0];
+	node* n2 = cp->ptr[1];
+	return n1->rect->area <
+		n2->rect->area ? n1 : n2;
+}
+
+node* getCompatibleChildNode(childpointer* cp, rect* r) {
+	/*summary: return the compatible child node for the
+	rect *r
+	args:
+		childpointer* cp -> pointer childpointer array
+	ret:
+		node * -> pointer to a node
+	*/
+
+	// loop through all the child node [2] and then
+	// obtain the node that make smallest rect
+	double difference = 0;
+	double prev_diff = cp->ptr[0]->rect->area;
+	int arrindex = 0;
+	// calculate input rect length and width
+	//double input_length = r->x1 - r->x0;
+	//double input_width = r->y1 - r->y0;
+	for (int i = 0; i < 2; i++) {
+		// area of the rectangle
+		double a = cp->ptr[i]->rect->area;
+		//double length = cp->ptr[i]->rect->x1
+		//	- cp->ptr[i]->rect->x0;
+		//double width = cp->ptr[i]->rect->y1
+		//	- cp->ptr[i]->rect->y0;
+		if (r->area > a) {
+			// if input area is greater 
+			// than current rect area skip
+			continue;
+		}
+		else {
+			difference = a - r->area;
+			if (prev_diff > difference) {
+				arrindex = i;
+				prev_diff = difference;
+			}
+		}
+	}
+	return cp->ptr[arrindex];
 }
 
 node* createNode(char repr, bool leaf, ...) {
@@ -132,6 +234,23 @@ node* createNode(char repr, bool leaf, ...) {
 	return n;
 }
 
+node* convertLeafNodeToNode(node* n) {
+	/*summary: convert to leaf node
+	args:
+		node* n -> pointer to leaf node
+	ret:
+		node* -> pointer to a node with 
+		child pointers
+	*/
+	// not a leafnode
+	if (n->arr != NULL) {
+		return n;
+	}
+	// creating child pointer
+	n->arr = createChildPointerArray();
+	return n;
+}
+
 rtree* createRTree() {
 	/*summary: creates a r-tree in the heap; since the dimension is 2 
 	this function doesnt much of use but we are going to use it anyways
@@ -140,62 +259,18 @@ rtree* createRTree() {
 	*/
 	rtree* r = malloc(sizeof(rtree));
 	r->height = 0;
-	r->rootnode = createNode('a',true);
+	r->rootnode = NULL;
 	return r;
 }
 
-void freeNode(node* n) {
-	/*summary: release the node from the memory
-	args:
-		node* n -> pointer to the ndoe;
-	*/
-	free(n->rect);
-	n->rect = NULL;
-	childpointer* tempcp = n->arr;
-	free(tempcp->ptr);
-	free(tempcp->count);
-	free(n);
-}
-
-void freeTree(rtree* r) {
-	/*summary: release the tree from the memory
-	args:
-		rtree* r -> pointer to a rtree
-	*/
-	free(r);
-}
-
-rect* doesItHaveBiggerArea(node* n, rect* r1) {
-	/*summary: compares two tuples together;
-	args:
-		tuple* t1
-		tuple* t2
-	ret:
-		t1 > t2 : 1
-		t1 == t2 : 0
-		t1 < t2 : -1
-	*/
-}
-
-node* getBiggestChildNode(childpointer* cp) {
-	/*summary: return the biggest node in the
-	childpointer
-	args:
-		childpointer* cp -> pointer childpointer array
-	ret:
-		node * -> pointer to a node
-	*/
-
-	// if not full; return the
-	// first node
-	if (!cp->isFull) {
-		return cp->ptr[0];
+void printRTree(rtree* r) {
+	/*summary: prints the rtree*/
+	node* tempNode = r->rootnode;
+	while (tempNode != NULL) {
 	}
-	return cp->ptr[0] > cp->ptr[1] 
-		? cp->ptr[0] : cp->ptr[1];
 }
 
-void adjustNodeSize(node* n) {
+void adjustNodeRect(node* n) {
 	/*summary: Adjust the size of the node
 	args:
 		node* n -> pointer to a node
@@ -206,7 +281,6 @@ void adjustNodeSize(node* n) {
 	if (n->rect->area 
 		<= tempNode->rect->area) {
 		n->rect = tempNode;
-		return;
 	} 
 	return;
 }
@@ -224,22 +298,36 @@ void insert(rtree* r, char* repr, rect* rect) {
 		// rect will be added as the child pointer in
 		// to the rtree and the rect in node will be
 		// pointed to the rect
-		r->rootnode = createNode(repr, false, rect);
+		node* rectNode = createNode(repr, true, rect);
+		r->rootnode = createNode(repr, false, rectNode);
 		return;
 	}
 
 	node* tempNode = r->rootnode;
 	// traversing the child pointers 
-	while (tempNode->arr != NULL) {
+	while (tempNode != NULL) {
 		childpointer* tempcp = tempNode->arr;
-		if (!tempcp->isFull) {
-		// not full; add it to the child pointer and
-		// adjust the node's rect
-			addChildPointer(tempcp, tempNode);
-
+		if (tempcp == NULL) {
+			// no childpointer are present
+			// currently tempnode is a leafnode
+			convertLeafNodeToNode(tempNode);
+			node* tempLeaf = createNode(repr, true, rect);
+			addChildPointer(tempNode->arr, tempLeaf);
+			break;
 		}
+		else if (!tempcp->isFull) {
+			// not full; add it to the child pointer and
+			// adjust the node's rect
+			// creating a leaf node
+			node* tempLeaf = createNode(repr, true, rect);
+			addChildPointer(tempcp, tempLeaf);
+			adjustNodeRect(tempNode);
+			break;
+		}
+		// selecting next child pointer
+		tempNode = getCompatibleChildNode(tempcp, rect);
 	}
-
+	return;
 }
 
 

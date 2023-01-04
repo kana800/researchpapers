@@ -53,7 +53,72 @@ START_TEST(test_m_getBiggestChildNode) {
     test for function:
         getBiggestChildNode(node* n);
     */
+
+    rect* r1 = createBoundingBoxes(0, 0, 0, 1);
+    rect* r2 = createBoundingBoxes(1, 2, 3, 4);
+
+    node* n1 = createNode('L', true, r1);
+    node* n3 = createNode('F', true, r2);
+    node* n2 = createNode('A', false, n1);
+
+    addChildPointer(n2->arr, n3);
+    childpointer* cp = n2->arr;
+    printChildPointer(cp);
+    // obtaining the child node
+    node* tn = getBiggestChildNode(cp);
+    // comparing the child node
+    ck_assert_double_eq(tn->rect->area, 0);
+    ck_assert_double_eq(tn->rect->x0, 1);
+    ck_assert_double_eq(tn->rect->x1, 2);
+    ck_assert_double_eq(tn->rect->y0, 3);
+    ck_assert_double_eq(tn->rect->y1, 4);
 }
+
+START_TEST(test_m_getCompatibleChildNode) {
+    /*summary:
+    test for function:
+        getCompatibleChildNode(
+            childpointer* cp, rect* r);
+    */
+
+    rect* r1 = createBoundingBoxes(0, 0, 10, 20);
+    rect* r2 = createBoundingBoxes(0, 0, 3, 5);
+    rect* r3 = createBoundingBoxes(0, 0, 2, 3);
+
+    // leafnodes
+    node* n1 = createNode('L', true, r1);
+    node* n3 = createNode('F', true, r2);
+    node* n4 = createNode('K', true, r3);
+    // rootnode
+    node* root = createNode('A', false, n1);
+    addChildPointer(root->arr, n3);
+
+    node* compatiblenode = getCompatibleChildNode(root->arr, r3);
+    printf("Compatible node should be %.2f\n", compatiblenode->rect->x1);
+}
+
+
+START_TEST(test_m_insert) {
+    /*summary:
+    test for function:
+        insert(rtree* r, char* repr, rect* rect);
+    */
+
+    // creating a new rtree
+    rtree* r = createRTree();
+
+    rect* r1 = createBoundingBoxes(0, 0, 10, 20);
+    rect* r2 = createBoundingBoxes(0, 0, 3, 5);
+    rect* r3 = createBoundingBoxes(0, 0, 2, 3);
+
+    insert(r, 'A', r1);
+    childpointer* tempchild = r->rootnode->arr;
+    ck_assert_ptr_null(tempchild->ptr[1]);
+    insert(r, 'B', r2);
+    insert(r, 'C', r3);
+    //printChildPointer(r->rootnode->arr);
+
+}END_TEST
 
 Suite* tree_suite(void) {
     Suite* s;
@@ -63,7 +128,10 @@ Suite* tree_suite(void) {
 
     /* core test cases */
     tc_core = tcase_create("Core");
-    tcase_add_test(tc_core, test_m_createnode);
+    //tcase_add_test(tc_core, test_m_createnode);
+    //tcase_add_test(tc_core, test_m_getBiggestChildNode);
+    //tcase_add_test(tc_core, test_m_getCompatibleChildNode);
+    tcase_add_test(tc_core, test_m_insert);
     suite_add_tcase(s, tc_core);
     return s;
 }
