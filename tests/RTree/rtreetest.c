@@ -110,14 +110,18 @@ START_TEST(test_m_insert) {
     rect* r1 = createBoundingBoxes(0, 0, 10, 20);
     rect* r2 = createBoundingBoxes(0, 0, 3, 5);
     rect* r3 = createBoundingBoxes(0, 0, 2, 3);
+    rect* r4 = createBoundingBoxes(0, 0, 1, 3);
+    rect* r5 = createBoundingBoxes(0, 0, 20, 30);
 
     insert(r, 'A', r1);
     childpointer* tempchild = r->rootnode->arr;
     ck_assert_ptr_null(tempchild->ptr[1]);
     insert(r, 'B', r2);
     insert(r, 'C', r3);
-    //printChildPointer(r->rootnode->arr);
+    insert(r, 'D', r4);
+    insert(r, 'D', r5);
 
+    printRTree(r);
 }END_TEST
 
 Suite* tree_suite(void) {

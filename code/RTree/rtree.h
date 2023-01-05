@@ -84,18 +84,19 @@ void printChildPointer(childpointer* arr) {
 	args:
 		childpointer* arr -> pointer to the array
 	*/
-	printf("-----------------------------\n");
-	printf("[0] rect: %.2f %.2f %.2f %.2f\n",
-		arr->ptr[0]->rect->x0,
-		arr->ptr[0]->rect->y0,
-		arr->ptr[0]->rect->x1,
-		arr->ptr[0]->rect->y1);
-	if (arr->isFull) {
-		printf("[1] rect: %.2f %.2f %.2f %.2f\n",
-			arr->ptr[1]->rect->x0,
-			arr->ptr[1]->rect->y0,
-			arr->ptr[1]->rect->x1,
-			arr->ptr[1]->rect->y1);
+	if (arr != NULL) {
+		printf("--childpointer 0\n\trect: %.2f %.2f %.2f %.2f\n",
+			arr->ptr[0]->rect->x0,
+			arr->ptr[0]->rect->y0,
+			arr->ptr[0]->rect->x1,
+			arr->ptr[0]->rect->y1);
+		if (arr->isFull) {
+			printf("--childpointer 1\n\trect: %.2f %.2f %.2f %.2f\n",
+				arr->ptr[1]->rect->x0,
+				arr->ptr[1]->rect->y0,
+				arr->ptr[1]->rect->x1,
+				arr->ptr[1]->rect->y1);
+		}
 	}
 }
 
@@ -200,6 +201,24 @@ node* getCompatibleChildNode(childpointer* cp, rect* r) {
 	return cp->ptr[arrindex];
 }
 
+void printNode(node* n) {
+	/*summary: prints the node
+	args:
+		node* n
+	*/
+	if (n == NULL) {
+		return;
+	}
+	printf("----------------------------------\n");
+	printf("node %c: rect %.2f %.2f %.2f %.2f\n",
+		n->repr,n->rect->x0,
+		n->rect->x1,n->rect->y0,n->rect->y1);
+	childpointer* c = n->arr;
+	printChildPointer(c);
+	printf("----------------------------------\n");
+	return;
+}
+
 node* createNode(char repr, bool leaf, ...) {
 	/*summary: create a node in the heap
 	args:
@@ -266,8 +285,14 @@ rtree* createRTree() {
 void printRTree(rtree* r) {
 	/*summary: prints the rtree*/
 	node* tempNode = r->rootnode;
+	// printing biggest nodes
 	while (tempNode != NULL) {
+		printNode(tempNode);
+		if (tempNode->arr == NULL) break;
+		tempNode = getBiggestChildNode(tempNode->arr);
 	}
+
+	return;
 }
 
 void adjustNodeRect(node* n) {
@@ -278,9 +303,9 @@ void adjustNodeRect(node* n) {
 	// checking if the current rect
 	// is already big enough
 	node* tempNode = getBiggestChildNode(n->arr);
-	if (n->rect->area 
-		<= tempNode->rect->area) {
-		n->rect = tempNode;
+	if (tempNode->rect->area 
+		>= n->rect->area) {
+		n->rect = tempNode->rect;
 	} 
 	return;
 }

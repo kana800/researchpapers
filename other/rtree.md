@@ -44,7 +44,23 @@ The number of entries that fit in one node is maximum `M` and minimum `m`(`m <= 
 
 ### Implementation of R-Tree
 
-<p align="center"> <a href=""> Implementation On R-Tree </a></p>
+<p align="center"> <a href=""> Half Implementation On R-Tree </a></p>
+
+This implementation is capable of 
+- creating a rtree
+- adding nodes to the rtree
+- printing rtree
+
+This implementation cannot do
+- node splitting (most important part)
+
+Check this implementation out: [R-Tree](https://github.com/tidwall/rtree.c/blob/master/rtree.c)
+
+<details>
+  <summary>Why Half Implementation</summary>
+Sadly :disappointed: Don't have enough time.  
+</details>
+
 
 #### Object Creation
 
@@ -67,6 +83,8 @@ typedef struct node_ {
 } node;
 ```
 
+The `node` structure can be used as a `leaf` node or a `non-leaf` node; The `non-leaf` node will hold `childpointer`.
+
  - `struct rect_* rect` is the pointer that holds the `rect` object that spatially contains all the entries/child pointers;
 ```c
 typedef struct rect_{
@@ -86,7 +104,7 @@ typedef struct rect_{
 }childpointer;
  ```
 
-`r_tree` structure will data related to the tree data structure; `rootnode` will hold starting node;
+`r_tree` structure will hold data related to the tree data structure; `rootnode` will hold starting node;
 
 ```c
 typedef struct r_tree {
@@ -95,9 +113,97 @@ typedef struct r_tree {
 } rtree;
 ```
 
+<p style="text-align: center" align="center">
+  <img src=".images/rtree/img1.png" alt="node visualization">
+  <p align="center">
+	Visualization of the nodes
+  </p>
+</p>
+
 #### Insertion
 
-When inserting a `node` we need to find smallest rectangle for the object.
+When inserting a `node` we need to find smallest rectangle node that can hold the object.
+> we want to keep these minimum bounding rectangle... well, minimal. The smaller they remain, the less chance rectangles will overlap 
+with others at the same level and more accurate they are. We can easily calculate that factor by taking the difference between surface areas of a current 
+branch bounding rectangle and rectangle which would encapsulate inserted element.
+
+When inserting value to the rtree first need to check whether a root node is available if it isn't then we need to 
+**create** a rootnode. The root node will be `non-leaf` node.
+
+> If the child nodes are full we need to split existing node in order for it to accommodate inserted leaf without violating max children capacity
+
+#### Node Splitting
+
+There are 3 algorithms presented by [Vlan Ag](https://youtu.be/Jd8F2hVnGtQ?t=499):
+- Exhaustive Algorithm: 
+	- Try all possible groupings and then
+	choose the best one.
+		- Requires knowledge of range or number
+		of nearest neighbours
+		- The number of possibilities is 
+		approximately ![](https://latex.codecogs.com/png.image?%5Cinline%20%5Cdpi%7B110%7D2%5E%7BM-1%7D)
+		- Has optimal results; Bad Run Time
+- Quadratic-Cost Algorithm
+	- Invoke `PickSeed` and assign two entries each to a group
+		- For each pair of entries compose a rectangle and pick the one with largest `d`
+	- Check if all entries are assigned
+	- Else, invoke `PickNext` and assign the next entry for
+	smallest rectangle. Resolve ties by adding the entry
+	(to the group with smaller area, then to the one with fewer entries, then to either)
+- Linear-Cost Algorithm
+	- This is similar to the quadratic-cost algorithm; but we use a
+	different version of `PickSeed`
+		- Along each dimension find entry whose rectangle
+		has the highest low side, and the one with lowest high side. 
+		Record the separation `L`. 
+		- Normalize the separations by the widith of the entire
+		set along the corresponding dimensions `W`
+		Choose the pair with the greatest normalized separation `L/W`
+
+In the function `getCompatibleChildNode` we are getting the most compatible child node for the provided `rect` value. We are simply comparing the
+`area` of the `childnode` against the `area` of the `rect`. 
+- What should I do when both area of childnode and area of rect are equal
+- What should I do if all the area's of childnode are lower than provided `rect`
+- What should I do if the provided area of `rect` is smaller than the area of childnode.
+
+We only hold `2` childnode's maximum (`M=2`), For the last point we can just find the smallest possible childnode that can occupy the
+`rect`;
+The next question will be how we are going to do the *node splitting*, 
+I can make a `leaf node` with the smallest `rect` and add to the **childnode** of the **selected node**. 
+
+<p style="text-align: center" align="center">
+  <img src=".images/rtree/img2.png" alt="node visualization">
+  <p align="center">
+	Visualization of adding nodes
+  </p>
+</p>
+
+If we adding a node that is bigger than the a *childnode* or *node* in general
+
+<p style="text-align: center" align="center">
+  <img src=".images/rtree/scene1.png" alt="node visualization">
+  <p align="center">
+	Visualization of adding bigger node
+  </p>
+</p>
+
+we can compare the sizes with the largest node and expand the `rect`
+
+<p style="text-align: center" align="center">
+  <img src=".images/rtree/scene2.png" alt="node visualization">
+  <p align="center">
+	Visualization of adding bigger node pt1
+  </p>
+</p>
+
+<p style="text-align: center" align="center">
+  <img src=".images/rtree/scene3.png" alt="node visualization">
+  <p align="center">
+	Visualization of adding bigger node pt2
+  </p>
+</p>
+
+---
 
 
 ### References
