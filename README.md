@@ -6,6 +6,7 @@ This repo consist of summaries and code for collection of research papers and ar
 
 - [The hybrid tree: an index structure for high dimensional feature spaces](papers/hybridtree.md) | [Code](code/)
     - [Implementation On `R-Tree`](other/rtree.md) | [Code](code/RTree)
+    - [Implementation on `B-Tree`](other/btree.md) | [Code](code/BTree)
 
 ### 2022
 
