@@ -7,6 +7,8 @@
   </p>
 </p>
 
+!change the diagram its wrong; keys shouldnt be branches
+
 
 B-Tree is an implementation of self-balancing binary trees.
 
@@ -24,6 +26,18 @@ These bounds can be expressed in terms of a fixed integer `t >= 2` called the *m
 	a node is *full* if it contains exactly `2t-1` keys.
 
 > `B-Tree` has `O(log(n))` time for search, insert and delete operations
+
+### Allocation of Node
+
+In `tree` structure we have,
+
+```c
+typedef struct tree_ {
+	node* rootnode;
+	int height;
+	int order;
+}btree;
+```
 
 ### Insertion of Node
 
