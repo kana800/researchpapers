@@ -1,14 +1,14 @@
-### B-Tree
+
+<h3 align="center">B-Tree</h3>
+
+---
 
 <p style="text-align: center" align="center">
   <img src=".images/btree/tree.png" alt="example of a b-tree">
   <p align="center">
-  B-Tree
+  Example: B-Tree Order 3
   </p>
 </p>
-
-!change the diagram its wrong; keys shouldnt be branches
-
 
 B-Tree is an implementation of self-balancing binary trees.
 
@@ -20,27 +20,31 @@ B-Tree is an implementation of self-balancing binary trees.
 - All leaves appear in the same level
 > - There are lower and upper bounds on the number of keys a node can contain.
 These bounds can be expressed in terms of a fixed integer `t >= 2` called the *minimum degree of the `B-Tree`*
-	- Every node other than the root must have atleast `t-1` keys. If the tree is nonempty, the root must have
+> - Every node other than the root must have atleast `t-1` keys. If the tree is nonempty, the root must have
 	atleast one key
-	- Every node can contain at most `2t-1` keys. Therefore, an internal node can have at most `2t` children. We say that
+> - Every node can contain at most `2t-1` keys. Therefore, an internal node can have at most `2t` children. We say that
 	a node is *full* if it contains exactly `2t-1` keys.
 
 > `B-Tree` has `O(log(n))` time for search, insert and delete operations
 
-### Allocation of Node
+---
 
-In `tree` structure we have,
+<h3 align="center">Implementation on B-Tree</h3>
 
-```c
-typedef struct tree_ {
-	node* rootnode;
-	int height;
-	int order;
-}btree;
-```
+The current implementation is half-way done, its pretty much incomplete and I don't have time to 
+complete it so I am going to leave it like this *forever*. The tricky part is insertion and
+deletion of data. 
 
-### Insertion of Node
+[BTree Visualizer Website](https://www.cs.usfca.edu/~galles/visualization/BTree.html) is a great tool to visualize how insertion and deletion of a key happens.
+I highly recommend going through the website and trying your own implementation cause this one is pretty much incomplete.
 
+---
+
+### B Tree Applications
+
+- Databases and file systems
+- To store blocks of data (secondary storage media)
+- Multilevel indexing
 
 ### References
 
@@ -49,3 +53,4 @@ typedef struct tree_ {
 - [B-Tree by Geekifi](https://www.youtube.com/watch?v=SI6E4Ma2ddg)
 - [B-Tree lecture 16 by utexas.edu](https://www.cs.utexas.edu/users/djimenez/utsa/cs3343/lecture16.html)
 - [B-Tree lecture 17 by utexas.edu](https://www.cs.utexas.edu/users/djimenez/utsa/cs3343/lecture17.html)
+- [B-Tree Insertion of Data](https://www.programiz.com/dsa/insertion-into-a-b-tree)

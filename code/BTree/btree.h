@@ -1,7 +1,7 @@
 /*
-This file contains implementation B-Tree (Order: 4)
-- Every node has at most 4 children
-- Every node has at most 3 keys
+This file contains implementation B-Tree (Order: 3)
+- Every node has at most 3 children
+- Every node has at most 2 keys
 */
 
 #ifndef BTREE_H
@@ -10,13 +10,14 @@ This file contains implementation B-Tree (Order: 4)
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 
-#define DEFAULT_ORDER 4
+#define MAX_KEYS 2
 
 
 typedef struct node_ {
-	int* keys; // pointer to the keys
-	struct node_** childtree; // pointer to the child tree
+	int keys[MAX_KEYS]; // pointer to the keys
+	struct node_* children[MAX_KEYS + 1]; // pointer to the child tree
 	int n_key; // current number of keys
 	bool isLeaf; // leaf node or not
 } node;
@@ -24,124 +25,102 @@ typedef struct node_ {
 typedef struct tree_ {
 	node* rootnode; // pointer to the rootnode
 	int height; // height of the tree 
-	int order;  // order of the tree
-	int max_keys; // maximum number of keys
-	int max_child; // maximum number of children
 } btree;
 
-node* allocateNode(int nk, int mk ,bool leaf) {
-	/*summary: create a node in the heap
+node* createNode(bool isleaf) {
+	/*summary: creates a node in the btree
 	args:
-		int nk -> max number of keys in the node
-		int mk -> max number of child node in the node 
-		bool leaf -> is it a leaf node ? 
 	ret:
-		node* -> pointer to the node
+		node* -> pointer to a node
 	*/
-	node* temp = malloc(sizeof(node));
-	temp->keys = malloc(sizeof(int)* nk);
-	temp->childtree = malloc(sizeof(node*) * mk);
-	temp->n_key = 0;
-	temp->isLeaf = leaf;
-	return temp;
-};
-
-btree* createBTree(int order) {
-	/*summary: create a tree in the heap
-	args:
-		int order -> minimum order of the btree
-	ret:
-		btree* -> pointer to a btree
-	*/
-	btree* temptree = malloc(sizeof(btree));
-	temptree->rootnode = NULL;
-#ifdef DEFAULT_ORDER
-	temptree->order = DEFAULT_ORDER;
-#else
-	temptree->order = order;
-#endif
-	temptree->height = 0;
-	temptree->max_keys = temptree->order - 1;
-	temptree->max_child = temptree->order;
-	return temptree;
+	node* tempnode = malloc(sizeof(node));
+	tempnode->isLeaf = isleaf;
+	return tempnode;
 }
 
-void freeTree(btree* t) {
-	/*summary: free the tree from the heap
+void printNodeKeys(node* n) {
+	/*summary: print all the keys in a node
 	args:
-		btree* t -> pointer to a btree
+		node* n -> pointer to a node
 	*/
+	if (n->n_key == 0) {
+		printf("Empty Tree\n");
+	}
+	else {
+		for (int i = 0; i < n->n_key; i++) {
+			printf("%d ", n->keys[i]);
+		}
+	}
+	return;
 }
 
-void printBTree(btree* t) {
-	/*summary: traverse and print btree
+node* splitChildren(node* n){
+	/*summary: split the children
+	of the node into two sections
 	args:
-		btree* t -> pointer to a btree
+		node* n -> pointer to a node
 	*/
-}
+	node* newhalfparent = createNode(n->isLeaf);
+	// keys and children are split between two parents
+	int halfed = newhalfparent->n_key = n->n_key / 2;
 
-void splitChildTree(int i, node* n) {
-	/*summary: split the child tree 
-	args:
-		int i -> split point 
-		node* n -> node to be spilt
-	*/
-
-	// cut the node in half and copy the first half of the
-	// keys to the new node
-	// if node isnt a leaf; copy the child pointers to the 
-	// new node
-	node* tempnode = allocateNode(n->n_key, n->n_key + 1, n->isLeaf);
-	// if odd leaves a decimal point;;
-	tempnode->n_key = n->n_key / 2;
-	int halfed = n->n_key / 2;
-
-	// copy over the right half of the old node into the
-	// new node
-	for (int j = 0; j < n->n_key; j++ ) {
-		tempnode->keys[j] = n->keys[j + halfed];
+	for (int i = 0; i < n->n_key; i++) {
+		newhalfparent->keys[i] = 
+			n->keys[halfed + i];
 	}
 
-	// copy the child pointer if the node is a leafnode
-	if (!n->isLeaf) {
-		for (int j = 0; j < n->n_key + 1; j++) {
-			tempnode->childtree[j] = n->childtree[j + halfed];
+	if (n->isLeaf) {
+		for (int i = 0; i < n->n_key + 1; i++) {
+			newhalfparent->children[i] = 
+				n->children[halfed + i];
 		}
 	}
 
 	n->n_key = halfed;
-
-
+	return newhalfparent;
 }
 
-void insertNode(btree* t, int k) {
-	/*summary: insert key to the tree
+void traversalInsertion(btree* t, int k) {
+	/*summary: insert a new key to the btree
 	args:
-		btree* t -> pointer to a btree
-		int k -> key value
+		int k -> new key value
 	*/
+}
 
+void insertnode(btree* t, int k) {
+	/*summary: insert a new key to the btree
+	args:
+		int k -> new key value
+	*/
+	
 	// empty tree
 	if (t->rootnode == NULL) {
-		t->rootnode = allocateNode(t->max_keys, t->max_child, true);
+		// creating a leaf node and add
+		// key k to the keys and increment
+		// key count by one
+		t->rootnode = createNode(true);
 		t->rootnode->keys[0] = k;
-		// increase the key value
 		t->rootnode->n_key = 1;
 	}
 	else {
-		if (t->rootnode->n_key == t->max_keys) {
-		// checking whether the node is full; if true 
-		// increase the height of the tree
-		// 1.create new node
-		// 2.new node child is old root node
-		// 3.split the old root node and move keys accordingly  
-			node* tempnode = allocateNode(t->max_keys, t->max_child, false);
-			tempnode->childtree[0] = t->rootnode;
-		}{
+		// checking if the root is full
+		if (t->rootnode->n_key == MAX_KEYS) {
+			// create a new root node
+			// child of newroot is going to 
+			// be the old root and split the old 
+			// root and move median key to the top
+			node* newroot = createNode(false);
+			// get the median value;
+			newroot->keys[0] = t->rootnode->keys[1];
+			node* new_parent = splitChildren(t->rootnode);
+			newroot->children[0] = t->rootnode;
+			newroot->children[1] = new_parent;
+			t->rootnode = newroot;
+		}
+		else {
 
 		}
 	}
-
 }
 
 #endif // BTREE_H
