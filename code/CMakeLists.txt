@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 
 set(MakingDataStructuresPersistent 0)
-set(RTree 1)
+set(RTree 0)
+set(BTree 1)
 
 if (MakingDataStructuresPersistent)
 	set(SRCES 
@@ -40,3 +41,24 @@ if (RTree)
 		LINKER_LANGUAGE C
 )
 endif()
+
+
+if (BTree)
+	set(BTree_SRCES 
+		"BTree/btree.c"
+	)
+
+	set(BTree_HEADERS
+		"BTree/btree.h"
+	)
+	add_library(
+		BTree 
+		${BTree_SRCES} ${BTree_HEADERS})
+
+	set_target_properties(
+		BTree PROPERTIES 
+		LINKER_LANGUAGE C
+	)
+endif()
+
+
