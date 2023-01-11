@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 
 set(MakingDataStructuresPersistent 0)
 set(RTree 0)
-set(BTree 1)
+set(BTree 0)
+set(SSTree 1)
 
 if (MakingDataStructuresPersistent)
 	set(SRCES 
@@ -61,4 +62,22 @@ if (BTree)
 	)
 endif()
 
+if (SSTree)
 
+	set(SSTree_SRCES 
+		"SSTree/sstree.c"
+	)
+
+	set(RTree_HEADERS
+		"SSTree/sstree.h"
+	)
+	add_library(
+		SSTree 
+		${RTree_SRCES} ${RTree_HEADERS})
+
+	set_target_properties(
+		SSTree PROPERTIES 
+		LINKER_LANGUAGE C
+	)
+
+endif()
